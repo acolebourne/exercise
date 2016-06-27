@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration scan="true" scanPeriod="30 seconds">
+  <contextName>Exercise</contextName>
+
+  <!-- 
+   | Propagate log levels to java.util.logging 
+   +-->
+  <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+    <resetJUL>true</resetJUL>
+  </contextListener>
+
+  <!-- 
+   | Expose the logback configuration via JMX 
+   +-->
+  <jmxConfigurator />
+
+  <!-- 
+   | Read in some settings from a properties file
+   +-->
+  <property resource="configuration.properties"/>
+
+  <!-- 
+   | Specify a local property that sets up the logging directory
+   +-->
+  <property scope="local" name="LOG_DIR" value="${log.logfileDirectory}" />
+
+  <!--
+   | Setup a file based logger that rolls
+   | 
+   | http://logback.qos.ch/manual/appenders.html#RollingFileAppender
+   +-->
+  <appender name="LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!-- 
+     | Name of the current log file
+     +-->
+    <File>${LOG_DIR}/${CONTEXT_NAME}.log</File>
+    
+    <!-- 
+     | Log message pattern configuration
+     | 
+     | http://logback.qos.ch/manual/layouts.html#conversionWord
+     +-->
+    <encoder>
+      <pattern>%-5level [%thread] %logger{36} %d{ISO8601} - %msg%n</pattern>
+    </encoder>
+    
+    <!--
+     | Rolls the log file every 24 hours
+     | gzip the archived log file
+     | Delete archived log files older than 28 days
+     | 
+     | http://logback.qos.ch/manual/appenders.html#TimeBasedRollingPolicy
+     +-->
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_DIR}/${CONTEXT_NAME}.log.%d{yyyy-MM-dd}.gz</fileNamePattern>
+      <maxHistory>28</maxHistory>
+    </rollingPolicy>
+  </appender>
+
+  <!-- 
+   | Setup default log level to INFO
+   +-->
+  <root level="${log.rootLevel}">
+    <appender-ref ref="LOG" />
+  </root>
+
+  <!-- 
+   | Turn up logging for portlet specific package
+   +-->
+
+  <logger name="exercise" additivity="false" level="DEBUG">
+    <appender-ref ref="LOG" />
+  </logger>
+
+</configuration>
